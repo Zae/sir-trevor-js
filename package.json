@@ -3,7 +3,7 @@
   "version": "0.4.3",
   "repository": {
     "type": "git",
-    "url": "git@github.com:madebymany/sir-trevor-js.git"
+    "url": "git@github.com:zae/sir-trevor-js.git"
   },
   "main": "./lib/sir-trevor-standalone.js",
   "scripts": {
