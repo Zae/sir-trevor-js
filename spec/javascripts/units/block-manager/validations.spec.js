@@ -1,5 +1,8 @@
 "use strict";
 
+import SirTrevor from '../../../../src';
+import _ from 'lodash';
+
 describe("BlockManager::Validations", function(){
 
   var mediator, manager, options;

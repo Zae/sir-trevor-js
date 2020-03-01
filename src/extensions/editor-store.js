@@ -6,48 +6,46 @@
  * We can easily extend this and store it on some server or something
  */
 
-var _ = require('../lodash');
-var utils = require('../utils');
+import { isUndefined } from 'lodash';
+import utils from '../utils';
 
+export default class EditorStore {
+  constructor(data, mediator) {
+    this.mediator = mediator;
+    this.initialize(data ? data.trim() : '');
+  }
 
-var EditorStore = function(data, mediator) {
-  this.mediator = mediator;
-  this.initialize(data ? data.trim() : '');
-};
-
-Object.assign(EditorStore.prototype, {
-
-  initialize: function(data) {
+  initialize(data) {
     this.store = this._parseData(data) || { data: [] };
-  },
+  }
 
-  retrieve: function() {
+  retrieve() {
     return this.store;
-  },
+  }
 
-  toString: function(space) {
+  toString(space) {
     return JSON.stringify(this.store, undefined, space);
-  },
+  }
 
-  reset: function() {
+  reset() {
     utils.log("Resetting the EditorStore");
     this.store = { data: [] };
-  },
+  }
 
-  addData: function(data) {
+  addData(data) {
     this.store.data.push(data);
     return this.store;
-  },
+  }
 
-  _parseData: function(data) {
-    var result;
+  _parseData(data) {
+    let result;
 
     if (data.length === 0) { return result; }
 
     try {
       // Ensure the JSON string has a data element that's an array
-      var jsonStr = JSON.parse(data);
-      if (!_.isUndefined(jsonStr.data)) {
+      const jsonStr = JSON.parse(data);
+      if (!isUndefined(jsonStr.data)) {
         result = jsonStr;
       }
     } catch(e) {
@@ -63,7 +61,4 @@ Object.assign(EditorStore.prototype, {
 
     return result;
   }
-
-});
-
-module.exports = EditorStore;
+}

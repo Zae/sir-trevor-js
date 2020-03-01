@@ -1,5 +1,7 @@
 "use strict";
 
+import SirTrevor from '../../../src';
+
 describe("toMarkdown", function(){
 
   it("converts links to markdown", function(){

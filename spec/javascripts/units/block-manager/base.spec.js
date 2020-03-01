@@ -1,5 +1,7 @@
 "use strict";
 
+import SirTrevor from '../../../../src';
+
 describe("BlockManager", function() {
 
   var manager;

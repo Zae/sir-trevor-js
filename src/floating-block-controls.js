@@ -6,12 +6,15 @@
    Draws the 'plus' between blocks
    */
 
-var _ = require('./lodash');
-var $ = require('jquery');
+import { isUndefined, isEmpty } from 'lodash';
+import $ from 'jquery'
 
-var EventBus = require('./event-bus');
+import EventBus from './event-bus';
+import FunctionBind from './function-bind';
+import Renderable from './renderable';
+import Events from './events';
 
-var FloatingBlockControls = function(wrapper, instance_id, mediator) {
+const FloatingBlockControls = function(wrapper, instance_id, mediator) {
   this.$wrapper = wrapper;
   this.instance_id = instance_id;
   this.mediator = mediator;
@@ -22,11 +25,11 @@ var FloatingBlockControls = function(wrapper, instance_id, mediator) {
   this.initialize();
 };
 
-Object.assign(FloatingBlockControls.prototype, require('./function-bind'), require('./renderable'), require('./events'), {
+Object.assign(FloatingBlockControls.prototype, FunctionBind, Renderable, Events, {
 
   className: "st-block-controls__top",
 
-  attributes: function() {
+  attributes() {
     return {
       'data-icon': 'add'
     };
@@ -34,7 +37,7 @@ Object.assign(FloatingBlockControls.prototype, require('./function-bind'), requi
 
   bound: ['handleBlockMouseOut', 'handleBlockMouseOver', 'handleBlockClick', 'onDrop'],
 
-  initialize: function() {
+  initialize() {
     this.$el.on('click', this.handleBlockClick)
     .dropArea()
     .bind('drop', this.onDrop);
@@ -44,15 +47,15 @@ Object.assign(FloatingBlockControls.prototype, require('./function-bind'), requi
     .on('click', '.st-block--with-plus', this.handleBlockClick);
   },
 
-  onDrop: function(ev) {
+  onDrop(ev) {
     ev.preventDefault();
 
-    var dropped_on = this.$el,
+    const dropped_on = this.$el,
     item_id = ev.originalEvent.dataTransfer.getData("text/plain"),
     block = $('#' + item_id);
 
-    if (!_.isUndefined(item_id) &&
-        !_.isEmpty(block) &&
+    if (!isUndefined(item_id) &&
+        !isEmpty(block) &&
           dropped_on.attr('id') !== item_id &&
             this.instance_id === block.attr('data-instance')
        ) {
@@ -62,27 +65,27 @@ Object.assign(FloatingBlockControls.prototype, require('./function-bind'), requi
        EventBus.trigger("block:reorder:dropped", item_id);
   },
 
-  handleBlockMouseOver: function(e) {
-    var block = $(e.currentTarget);
+  handleBlockMouseOver(e) {
+    const block = $(e.currentTarget);
 
     if (!block.hasClass('st-block--with-plus')) {
       block.addClass('st-block--with-plus');
     }
   },
 
-  handleBlockMouseOut: function(e) {
-    var block = $(e.currentTarget);
+  handleBlockMouseOut(e) {
+    const block = $(e.currentTarget);
 
     if (block.hasClass('st-block--with-plus')) {
       block.removeClass('st-block--with-plus');
     }
   },
 
-  handleBlockClick: function(e) {
+  handleBlockClick(e) {
     e.stopPropagation();
     this.mediator.trigger('block-controls:render', $(e.currentTarget));
   }
 
 });
 
-module.exports = FloatingBlockControls;
+export default FloatingBlockControls;

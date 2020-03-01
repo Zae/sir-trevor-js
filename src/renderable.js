@@ -1,49 +1,56 @@
 "use strict";
 
-var _ = require('./lodash');
+import _ from 'lodash';
 var $ = require('jquery');
 
-module.exports = {
+export default {
   tagName: 'div',
   className: 'sir-trevor__view',
   attributes: {},
 
-  $: function(selector) {
+  $: function (selector) {
     return this.$el.find(selector);
   },
 
-  render: function() {
+  render: function () {
     return this;
   },
 
-  destroy: function() {
-    if (!_.isUndefined(this.stopListening)) { this.stopListening(); }
+  destroy: function () {
+    if (!_.isUndefined(this.stopListening)) {
+      this.stopListening();
+    }
     this.$el.remove();
   },
 
-  _ensureElement: function() {
+  _ensureElement: function () {
     if (!this.el) {
       var attrs = Object.assign({}, _.result(this, 'attributes')),
-      html;
-      if (this.id) { attrs.id = this.id; }
-      if (this.className) { attrs['class'] = this.className; }
+        html;
+      if (this.id) {
+        attrs.id = this.id;
+      }
+      if (this.className) {
+        attrs['class'] = this.className;
+      }
 
       if (attrs.html) {
         html = attrs.html;
         delete attrs.html;
       }
       var $el = $('<' + this.tagName + '>').attr(attrs);
-      if (html) { $el.html(html); }
+      if (html) {
+        $el.html(html);
+      }
       this._setElement($el);
     } else {
       this._setElement(this.el);
     }
   },
 
-  _setElement: function(element) {
+  _setElement: function (element) {
     this.$el = $(element);
     this.el = this.$el[0];
     return this;
   }
-};
-
+}

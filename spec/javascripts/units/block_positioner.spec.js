@@ -1,5 +1,8 @@
 "use strict";
 
+import SirTrevor from '../../../src';
+import $ from 'jquery';
+
 describe("BlockPositioner", function(){
 
   var positioner, $el, mediator;

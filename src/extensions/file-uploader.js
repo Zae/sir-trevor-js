@@ -5,19 +5,19 @@
 *   Generic Upload implementation that can be extended for blocks
 */
 
-var _ = require('../lodash');
-var $ = require('jquery');
-var config = require('../config');
-var utils = require('../utils');
+import { isUndefined, isFunction } from 'lodash';
+import $ from 'jquery';
+import config from '../config';
+import utils from '../utils';
 
-var EventBus = require('../event-bus');
+import EventBus from '../event-bus';
 
-module.exports = function(block, file, success, error) {
+export default function (block, file, success, error) {
 
   EventBus.trigger('onUploadStart');
 
-  var uid  = [block.blockID, (new Date()).getTime(), 'raw'].join('-');
-  var data = new FormData();
+  const uid = [block.blockID, (new Date()).getTime(), 'raw'].join('-');
+  const data = new FormData();
 
   data.append('attachment[name]', file.name);
   data.append('attachment[file]', file);
@@ -25,25 +25,25 @@ module.exports = function(block, file, success, error) {
 
   block.resetMessages();
 
-  var callbackSuccess = function(data) {
+  const callbackSuccess = function (data) {
     utils.log('Upload callback called');
     EventBus.trigger('onUploadStop');
 
-    if (!_.isUndefined(success) && _.isFunction(success)) {
+    if (!isUndefined(success) && isFunction(success)) {
       success.apply(block, arguments);
     }
   };
 
-  var callbackError = function(jqXHR, status, errorThrown) {
+  const callbackError = function (jqXHR, status, errorThrown) {
     utils.log('Upload callback error called');
     EventBus.trigger('onUploadStop');
 
-    if (!_.isUndefined(error) && _.isFunction(error)) {
+    if (!isUndefined(error) && isFunction(error)) {
       error.call(block, status);
     }
   };
 
-  var xhr = $.ajax({
+  const xhr = $.ajax({
     url: config.defaults.uploadUrl,
     data: data,
     cache: false,
@@ -56,8 +56,8 @@ module.exports = function(block, file, success, error) {
   block.addQueuedItem(uid, xhr);
 
   xhr.done(callbackSuccess)
-     .fail(callbackError)
-     .always(block.removeQueuedItem.bind(block, uid));
+    .fail(callbackError)
+    .always(block.removeQueuedItem.bind(block, uid));
 
   return xhr;
-};
+}

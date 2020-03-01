@@ -1,61 +1,61 @@
 "use strict";
 
-var _ = require('./lodash');
-var config = require('./config');
+import _ from 'lodash';
+import config from './config';
 
-var urlRegex = /^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/;
+const urlRegex = /^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/;
 
-var utils = {
-  log: function() {
+export default {
+  log() {
     if (!_.isUndefined(console) && config.debug) {
       console.log.apply(console, arguments);
     }
   },
 
-  isURI : function(string) {
+  isURI(string) {
     return (urlRegex.test(string));
   },
 
-  titleize: function(str){
+  titleize(str) {
     if (str === null) {
       return '';
     }
-    str  = String(str).toLowerCase();
-    return str.replace(/(?:^|\s|-)\S/g, function(c){ return c.toUpperCase(); });
+    str = String(str).toLowerCase();
+    return str.replace(/(?:^|\s|-)\S/g, function (c) {
+      return c.toUpperCase();
+    });
   },
 
-  classify: function(str){
-    return utils.titleize(String(str).replace(/[\W_]/g, ' ')).replace(/\s/g, '');
+  classify(str) {
+    return this.titleize(String(str).replace(/[\W_]/g, ' ')).replace(/\s/g, '');
   },
 
-  capitalize : function(string) {
+  capitalize(string) {
     return string.charAt(0).toUpperCase() + string.substring(1).toLowerCase();
   },
 
-  flatten: function(obj) {
-    var x = {};
+  flatten(obj) {
+    const x = {};
     (Array.isArray(obj) ? obj : Object.keys(obj)).forEach(function (i) {
       x[i] = true;
     });
     return x;
   },
 
-  underscored: function(str){
+  underscored(str) {
     return str.trim().replace(/([a-z\d])([A-Z]+)/g, '$1_$2')
-    .replace(/[-\s]+/g, '_').toLowerCase();
+      .replace(/[-\s]+/g, '_').toLowerCase();
   },
 
-  reverse: function(str) {
+  reverse(str) {
     return str.split("").reverse().join("");
   },
 
-  toSlug: function(str) {
+  toSlug(str) {
     return str
-    .toLowerCase()
-    .replace(/[^\w ]+/g,'')
-    .replace(/ +/g,'-');
+      .toLowerCase()
+      .replace(/[^\w ]+/g, '')
+      .replace(/ +/g, '-');
   }
 
-};
-
-module.exports = utils;
+}

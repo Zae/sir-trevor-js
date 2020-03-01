@@ -1,9 +1,13 @@
 "use strict";
 
-var _ = require('./lodash');
-var Blocks = require('./blocks');
+import { result } from 'lodash';
+import Blocks from './blocks';
 
-var BlockControl = function(type) {
+import FunctionBind from './function-bind';
+import Renderable from './renderable';
+import Events from './events';
+
+const BlockControl = function(type) {
   this.type = type;
   this.block_type = Blocks[this.type].prototype;
   this.can_be_rendered = this.block_type.toolbarEnabled;
@@ -11,21 +15,21 @@ var BlockControl = function(type) {
   this._ensureElement();
 };
 
-Object.assign(BlockControl.prototype, require('./function-bind'), require('./renderable'), require('./events'), {
+Object.assign(BlockControl.prototype, FunctionBind, Renderable, Events, {
 
   tagName: 'a',
   className: "st-block-control",
 
-  attributes: function() {
+  attributes() {
     return {
       'data-type': this.block_type.type
     };
   },
 
-  render: function() {
-    this.$el.html('<span class="st-icon">'+ _.result(this.block_type, 'icon_name') +'</span>' + _.result(this.block_type, 'title'));
+  render() {
+    this.$el.html('<span class="st-icon">'+ result(this.block_type, 'icon_name') +'</span>' + result(this.block_type, 'title'));
     return this;
   }
 });
 
-module.exports = BlockControl;
+export default BlockControl;

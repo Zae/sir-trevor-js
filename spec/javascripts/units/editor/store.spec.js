@@ -1,5 +1,8 @@
 "use strict";
 
+import SirTrevor from '../../../../src';
+import _ from 'lodash';
+
 describe("EditorStore", function(){
 
   var mediator, store;

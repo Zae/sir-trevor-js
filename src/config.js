@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = {
+export default {
   debug: false,
   skipValidation: false,
   version: "0.4.0",
@@ -30,4 +30,4 @@ module.exports = {
     baseImageUrl: '/sir-trevor-uploads/',
     errorsContainer: undefined,
   }
-};
+}

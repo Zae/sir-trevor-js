@@ -1,10 +1,10 @@
 "use strict";
 
-var _ = require('./lodash');
-var config = require('./config');
-var utils = require('./utils');
+import _, { isUndefined, isString } from 'lodash';
+import config from './config';
+import utils from './utils';
 
-var Locales = {
+const Locales = {
   en: {
     general: {
       'delete':           'Delete?',
@@ -58,26 +58,27 @@ var Locales = {
   }
 };
 
-if (window.i18n === undefined) {
+// if (window.i18n === undefined) {
   // Minimal i18n stub that only reads the English strings
   utils.log("Using i18n stub");
   window.i18n = {
     t: function(key, options) {
-      var parts = key.split(':'), str, obj, part, i;
+      const parts = key.split(':');
+      let str, obj, part, i;
 
       obj = Locales[config.language];
 
       for(i = 0; i < parts.length; i++) {
         part = parts[i];
 
-        if(!_.isUndefined(obj[part])) {
+        if (!isUndefined(obj[part])) {
           obj = obj[part];
         }
       }
 
       str = obj;
 
-      if (!_.isString(str)) { return ""; }
+      if (!isString(str)) { return ""; }
 
       if (str.indexOf('__') >= 0) {
         Object.keys(options).forEach(function(opt) {
@@ -88,13 +89,13 @@ if (window.i18n === undefined) {
       return str;
     }
   };
-} else {
-  utils.log("Using i18next");
-  // Only use i18next when the library has been loaded by the user, keeps
-  // dependencies slim
-  i18n.init({ resStore: Locales, fallbackLng: config.language,
-            ns: { namespaces: ['general', 'blocks'], defaultNs: 'general' }
-  });
-}
+// } else {
+//   utils.log("Using i18next");
+//   // Only use i18next when the library has been loaded by the user, keeps
+//   // dependencies slim
+//   i18n.init({ resStore: Locales, fallbackLng: config.language,
+//             ns: { namespaces: ['general', 'blocks'], defaultNs: 'general' }
+//   });
+// }
 
-module.exports = Locales;
+export default Locales;

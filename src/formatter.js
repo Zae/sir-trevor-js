@@ -1,70 +1,76 @@
 "use strict";
 
-var _ = require('./lodash');
+import _ from 'lodash';
+import Extend from './helpers/extend';
 
-var Formatter = function(options){
-  this.formatId = _.uniqueId('format-');
-  this._configure(options || {});
-  this.initialize.apply(this, arguments);
-};
+const formatOptions = ["title", "className", "cmd", "keyCode", "param", "onClick", "toMarkdown", "toHTML"];
 
-var formatOptions = ["title", "className", "cmd", "keyCode", "param", "onClick", "toMarkdown", "toHTML"];
+class Formatter {
+  constructor(options) {
+    this.formatId = _.uniqueId('format-');
+    this._configure(options || {});
+    this.initialize.apply(this, arguments);
 
-Object.assign(Formatter.prototype, {
+    this.title = '';
+    this.className = '';
+    this.cmd = null;
+    this.keyCode = null;
+    this.param = null;
+  }
 
-  title: '',
-  className: '',
-  cmd: null,
-  keyCode: null,
-  param: null,
+  toMarkdown(markdown) {
+    return markdown;
+  }
 
-  toMarkdown: function(markdown){ return markdown; },
-  toHTML: function(html){ return html; },
+  toHTML(html) {
+    return html;
+  }
 
-  initialize: function(){},
+  initialize(){}
 
-  _configure: function(options) {
+  _configure(options) {
     if (this.options) {
       options = Object.assign({}, this.options, options);
     }
-    for (var i = 0, l = formatOptions.length; i < l; i++) {
-      var attr = formatOptions[i];
+
+    for (let i = 0, l = formatOptions.length; i < l; i++) {
+      const attr = formatOptions[i];
       if (options[attr]) {
         this[attr] = options[attr];
       }
     }
     this.options = options;
-  },
+  }
 
-  isActive: function() {
-    return document.queryCommandState(this.cmd);
-  },
+  isActive() {
+    return document.queryCommandState(this.cmd)
+  }
 
-  _bindToBlock: function(block) {
-    var formatter = this,
-    ctrlDown = false;
+  _bindToBlock(block) {
+    const formatter = this;
+    let ctrlDown = false;
 
     block
-    .on('keyup','.st-text-block', function(ev) {
-      if(ev.which === 17 || ev.which === 224 || ev.which === 91) {
-        ctrlDown = false;
-      }
-    })
-    .on('keydown','.st-text-block', { formatter: formatter }, function(ev) {
-      if(ev.which === 17 || ev.which === 224 || ev.which === 91) {
-        ctrlDown = true;
-      }
+      .on('keyup', '.st-text-block', function (ev) {
+        if (ev.which === 17 || ev.which === 224 || ev.which === 91) {
+          ctrlDown = false;
+        }
+      })
+      .on('keydown', '.st-text-block', {formatter: formatter}, function (ev) {
+        if (ev.which === 17 || ev.which === 224 || ev.which === 91) {
+          ctrlDown = true;
+        }
 
-      if(ev.which === ev.data.formatter.keyCode && ctrlDown === true) {
-        document.execCommand(ev.data.formatter.cmd, false, true);
-        ev.preventDefault();
-        ctrlDown = false;
-      }
-    });
+        if (ev.which === ev.data.formatter.keyCode && ctrlDown === true) {
+          document.execCommand(ev.data.formatter.cmd, false, true);
+          ev.preventDefault();
+          ctrlDown = false;
+        }
+      });
   }
-});
+}
 
 // Allow our Formatters to be extended.
-Formatter.extend = require('./helpers/extend');
+// Formatter.extend = Extend;
 
-module.exports = Formatter;
+export default Formatter;

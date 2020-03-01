@@ -1,13 +1,16 @@
 "use strict";
 
-var template = [
+import FunctionBind from './function-bind';
+import Renderable from './renderable';
+
+const template = [
   "<div class='st-block-positioner__inner'>",
   "<span class='st-block-positioner__selected-value'></span>",
   "<select class='st-block-positioner__select'></select>",
   "</div>"
 ].join("\n");
 
-var BlockPositioner = function(block_element, mediator) {
+const BlockPositioner = function (block_element, mediator) {
   this.mediator = mediator;
   this.$block = block_element;
 
@@ -17,7 +20,7 @@ var BlockPositioner = function(block_element, mediator) {
   this.initialize();
 };
 
-Object.assign(BlockPositioner.prototype, require('./function-bind'), require('./renderable'), {
+Object.assign(BlockPositioner.prototype, FunctionBind, Renderable, {
 
   total_blocks: 0,
 
@@ -26,7 +29,7 @@ Object.assign(BlockPositioner.prototype, require('./function-bind'), require('./
   className: 'st-block-positioner',
   visibleClass: 'st-block-positioner--is-visible',
 
-  initialize: function(){
+  initialize() {
     this.$el.append(template);
     this.$select = this.$('.st-block-positioner__select');
 
@@ -35,15 +38,15 @@ Object.assign(BlockPositioner.prototype, require('./function-bind'), require('./
     this.mediator.on("block:countUpdate", this.onBlockCountChange);
   },
 
-  onBlockCountChange: function(new_count) {
+  onBlockCountChange(new_count) {
     if (new_count !== this.total_blocks) {
       this.total_blocks = new_count;
       this.renderPositionList();
     }
   },
 
-  onSelectChange: function() {
-    var val = this.$select.val();
+  onSelectChange() {
+    const val = this.$select.val();
     if (val !== 0) {
       this.mediator.trigger(
         "block:changePosition", this.$block, val,
@@ -52,27 +55,27 @@ Object.assign(BlockPositioner.prototype, require('./function-bind'), require('./
     }
   },
 
-  renderPositionList: function() {
-    var inner = "<option value='0'>" + i18n.t("general:position") + "</option>";
-    for(var i = 1; i <= this.total_blocks; i++) {
-      inner += "<option value="+i+">"+i+"</option>";
+  renderPositionList() {
+    let inner = "<option value='0'>" + i18n.t("general:position") + "</option>";
+    for (let i = 1; i <= this.total_blocks; i++) {
+      inner += "<option value=" + i + ">" + i + "</option>";
     }
     this.$select.html(inner);
   },
 
-  toggle: function() {
+  toggle() {
     this.$select.val(0);
     this.$el.toggleClass(this.visibleClass);
   },
 
-  show: function(){
+  show() {
     this.$el.addClass(this.visibleClass);
   },
 
-  hide: function(){
+  hide() {
     this.$el.removeClass(this.visibleClass);
   }
 
 });
 
-module.exports = BlockPositioner;
+export default BlockPositioner;

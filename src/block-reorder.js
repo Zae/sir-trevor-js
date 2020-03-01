@@ -1,11 +1,13 @@
 "use strict";
 
-var _ = require('./lodash');
-var $ = require('jquery');
+import { isUndefined, isEmpty } from 'lodash';
+import $ from 'jquery';
+import EventBus from './event-bus';
 
-var EventBus = require('./event-bus');
+import FunctionBind from './function-bind';
+import Renderable from './renderable';
 
-var BlockReorder = function(block_element, mediator) {
+const BlockReorder = function (block_element, mediator) {
   this.$block = block_element;
   this.blockID = this.$block.attr('id');
   this.mediator = mediator;
@@ -16,14 +18,14 @@ var BlockReorder = function(block_element, mediator) {
   this.initialize();
 };
 
-Object.assign(BlockReorder.prototype, require('./function-bind'), require('./renderable'), {
+Object.assign(BlockReorder.prototype, FunctionBind, Renderable, {
 
   bound: ['onMouseDown', 'onDragStart', 'onDragEnd', 'onDrop'],
 
   className: 'st-block-ui-btn st-block-ui-btn--reorder st-icon',
   tagName: 'a',
 
-  attributes: function() {
+  attributes() {
     return {
       'html': 'reorder',
       'draggable': 'true',
@@ -31,7 +33,7 @@ Object.assign(BlockReorder.prototype, require('./function-bind'), require('./ren
     };
   },
 
-  initialize: function() {
+  initialize() {
     this.$el.bind('mousedown touchstart', this.onMouseDown)
       .bind('dragstart', this.onDragStart)
       .bind('dragend touchend', this.onDragEnd);
@@ -40,34 +42,34 @@ Object.assign(BlockReorder.prototype, require('./function-bind'), require('./ren
       .bind('drop', this.onDrop);
   },
 
-  blockId: function() {
+  blockId() {
     return this.$block.attr('id');
   },
 
-  onMouseDown: function() {
+  onMouseDown() {
     this.mediator.trigger("block-controls:hide");
     EventBus.trigger("block:reorder:down");
   },
 
-  onDrop: function(ev) {
+  onDrop(ev) {
     ev.preventDefault();
 
-    var dropped_on = this.$block,
-    item_id = ev.originalEvent.dataTransfer.getData("text/plain"),
-    block = $('#' + item_id);
+    const dropped_on = this.$block,
+      item_id = ev.originalEvent.dataTransfer.getData("text/plain"),
+      block = $('#' + item_id);
 
-    if (!_.isUndefined(item_id) && !_.isEmpty(block) &&
-        dropped_on.attr('id') !== item_id &&
-          dropped_on.attr('data-instance') === block.attr('data-instance')
-       ) {
-       dropped_on.after(block);
-     }
-     this.mediator.trigger("block:rerender", item_id);
-     EventBus.trigger("block:reorder:dropped", item_id);
+    if (!isUndefined(item_id) && !isEmpty(block) &&
+      dropped_on.attr('id') !== item_id &&
+      dropped_on.attr('data-instance') === block.attr('data-instance')
+    ) {
+      dropped_on.after(block);
+    }
+    this.mediator.trigger("block:rerender", item_id);
+    EventBus.trigger("block:reorder:dropped", item_id);
   },
 
-  onDragStart: function(ev) {
-    var btn = $(ev.currentTarget).parent();
+  onDragStart(ev) {
+    const btn = $(ev.currentTarget).parent();
 
     ev.originalEvent.dataTransfer.setDragImage(this.$block[0], btn.position().left, btn.position().top);
     ev.originalEvent.dataTransfer.setData('Text', this.blockId());
@@ -76,15 +78,15 @@ Object.assign(BlockReorder.prototype, require('./function-bind'), require('./ren
     this.$block.addClass('st-block--dragging');
   },
 
-  onDragEnd: function(ev) {
+  onDragEnd() {
     EventBus.trigger("block:reorder:dragend");
     this.$block.removeClass('st-block--dragging');
   },
 
-  render: function() {
+  render() {
     return this;
   }
 
 });
 
-module.exports = BlockReorder;
+export default BlockReorder;

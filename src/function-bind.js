@@ -2,9 +2,9 @@
 
 /* Generic function binding utility, used by lots of our classes */
 
-module.exports = {
+export default {
   bound: [],
-  _bindFunctions: function(){
+  _bindFunctions(){
     this.bound.forEach(function(f) {
       this[f] = this[f].bind(this);
     }, this);

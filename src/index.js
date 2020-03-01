@@ -1,95 +1,126 @@
 "use strict";
 
-var _ = require('./lodash');
+import { isUndefined, isString } from 'lodash';
 
-// ES6 shims
-require('object.assign').shim();
-require('array.prototype.find');
-require('./vendor/array-includes'); // shims ES7 Array.prototype.includes
+import config from './config';
+import utils from './utils';
+import Locales from './locales';
+import Events from './events';
+import EventBus from './event-bus';
 
-require('./helpers/event'); // extends jQuery itself
+import EditorStorage from './extensions/editor-store';
+import Submittable from './extensions/submittable';
+import FileUploader from './extensions/file-uploader';
 
-var SirTrevor = {
+import BlockMixins from './block_mixins';
+import BlockPositioner from './block-positioner';
+import BlockReorder from './block-reorder';
+import BlockDeletion from './block-deletion';
+import BlockValidations from './block-validations';
+import BlockStore from './block-store';
+import BlockManager from './block-manager';
 
-  config: require('./config'),
+import SimpleBlock from './simple-block';
+import Block from './block';
+import Formatter from './formatter';
+import * as Formatters from './formatters';
 
-  log: require('./utils').log,
-  Locales: require('./locales'),
+import Blocks from './blocks';
 
-  Events: require('./events'),
-  EventBus: require('./event-bus'),
+import BlockControl from './block-control';
+import BlockControls from './block-controls';
+import FloatingBlockControls from './floating-block-controls';
 
-  EditorStore: require('./extensions/editor-store'),
-  Submittable: require('./extensions/submittable'),
-  FileUploader: require('./extensions/file-uploader'),
+import FormatBar from './format-bar';
+import Editor from './editor';
 
-  BlockMixins: require('./block_mixins'),
-  BlockPositioner: require('./block-positioner'),
-  BlockReorder: require('./block-reorder'),
-  BlockDeletion: require('./block-deletion'),
-  BlockValidations: require('./block-validations'),
-  BlockStore: require('./block-store'),
-  BlockManager: require('./block-manager'),
+import toMarkdown from './to-markdown';
+import toHTML from './to-html';
 
-  SimpleBlock: require('./simple-block'),
-  Block: require('./block'),
-  Formatter: require('./formatter'),
-  Formatters: require('./formatters'),
+import FormEvents from './form-events';
 
-  Blocks: require('./blocks'),
+import './helpers/event'; // extends jQuery itself
 
-  BlockControl: require('./block-control'),
-  BlockControls: require('./block-controls'),
-  FloatingBlockControls: require('./floating-block-controls'),
+class SirTrevorClass {
+  constructor() {
+    this.config = config;
+    this.log = utils.log;
+    this.Locales = Locales;
 
-  FormatBar: require('./format-bar'),
-  Editor: require('./editor'),
+    this.Events = Events;
+    this.EventBus = EventBus;
 
-  toMarkdown: require('./to-markdown'),
-  toHTML: require('./to-html'),
+    this.EditorStore = EditorStorage;
+    this.Submittable = Submittable;
+    this.FileUploader = FileUploader;
 
-  setDefaults: function(options) {
-    Object.assign(SirTrevor.config.defaults, options || {});
-  },
+    this.BlockMixins = BlockMixins;
+    this.BlockPositioner = BlockPositioner;
+    this.BlockReorder = BlockReorder;
+    this.BlockDeletion = BlockDeletion;
+    this.BlockValidations = BlockValidations;
+    this.BlockStore = BlockStore;
+    this.BlockManager = BlockManager;
 
-  getInstance: function(identifier) {
-    if (_.isUndefined(identifier)) {
+    this.SimpleBlock = SimpleBlock;
+    this.Block = Block;
+    this.Formatter = Formatter;
+    this.Formatters = Formatters;
+
+    this.Blocks = Blocks;
+
+    this.BlockControl = BlockControl;
+    this.BlockControls = BlockControls;
+    this.FloatingBlockControls = FloatingBlockControls;
+
+    this.FormatBar = FormatBar;
+
+    this.Editor = Editor;
+
+    this.toMarkdown = toMarkdown;
+    this.toHTML = toHTML;
+  }
+
+  setDefaults(options) {
+    Object.assign(this.config.defaults, options || {});
+  }
+
+  getInstance(identifier) {
+    if (isUndefined(identifier)) {
       return this.config.instances[0];
     }
 
-    if (_.isString(identifier)) {
-      return this.config.instances.find(function(editor) {
-        return editor.ID === identifier;
-      });
+    if (isString(identifier)) {
+      return this.config.instances.find(editor => editor.ID === identifier);
     }
 
     return this.config.instances[identifier];
-  },
+  }
 
-  setBlockOptions: function(type, options) {
-    var block = SirTrevor.Blocks[type];
+  setBlockOptions(type, options) {
+    const block = this.Blocks[type];
 
-    if (_.isUndefined(block)) {
+    if (isUndefined(block)) {
       return;
     }
 
     Object.assign(block.prototype, options || {});
-  },
+  }
 
-  runOnAllInstances: function(method) {
-    if (SirTrevor.Editor.prototype.hasOwnProperty(method)) {
-      var methodArgs = Array.prototype.slice.call(arguments, 1);
-      Array.prototype.forEach.call(SirTrevor.config.instances, function(i) {
+  runOnAllInstances(method) {
+    if (this.Editor.prototype.hasOwnProperty(method)) {
+      const methodArgs = Array.prototype.slice.call(arguments, 1);
+      Array.prototype.forEach.call(this.config.instances, (i) => {
         i[method].apply(null, methodArgs);
       });
     } else {
-      SirTrevor.log("method doesn't exist");
+      this.log("method doesn't exist");
     }
-  },
+  }
+}
 
-};
+const SirTrevor = new SirTrevorClass();
 
-Object.assign(SirTrevor, require('./form-events'));
+Object.assign(SirTrevor, FormEvents);
 
-
-module.exports = SirTrevor;
+export default SirTrevor;

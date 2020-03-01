@@ -2,35 +2,46 @@
 
 /* Our base formatters */
 
-var Formatter = require('./formatter');
+import Formatter from './formatter';
 
-var Bold = Formatter.extend({
-  title: "bold",
-  cmd: "bold",
-  keyCode: 66,
-  text : "B"
-});
+export class Bold extends Formatter {
+  constructor() {
+    super();
 
-var Italic = Formatter.extend({
-  title: "italic",
-  cmd: "italic",
-  keyCode: 73,
-  text : "i"
-});
+    this.title = "bold";
+    this.cmd = "bold";
+    this.keyCode = 66;
+    this.text = "B";
+  }
+}
 
-var Link = Formatter.extend({
+export class Italic extends Formatter {
+  constructor() {
+    super();
 
-  title: "link",
-  iconName: "link",
-  cmd: "CreateLink",
-  text : "link",
+    this.title = "italic";
+    this.cmd = "italic";
+    this.keyCode = 73;
+    this.text = "i";
+  }
+}
 
-  onClick: function() {
+export class Link extends Formatter {
+  constructor() {
+    super();
 
-    var link = window.prompt(i18n.t("general:link")),
-    link_regex = /((ftp|http|https):\/\/.)|mailto(?=\:[-\.\w]+@)/;
+    this.title = "link";
+    this.iconName = "link";
+    this.cmd = "CreateLink";
+    this.text = "link";
+  }
 
-    if(link && link.length > 0) {
+  onClick() {
+
+    let link = window.prompt(i18n.t("general:link")),
+      link_regex = /((ftp|http|https):\/\/.)|mailto(?=\:[-\.\w]+@)/;
+
+    if (link && link.length > 0) {
 
       if (!link_regex.test(link)) {
         link = "http://" + link;
@@ -38,31 +49,36 @@ var Link = Formatter.extend({
 
       document.execCommand(this.cmd, false, link);
     }
-  },
+  }
 
-  isActive: function() {
-    var selection = window.getSelection(),
-    node;
+  isActive() {
+    const selection = window.getSelection();
+    let node;
 
     if (selection.rangeCount > 0) {
       node = selection.getRangeAt(0)
-      .startContainer
-      .parentNode;
+        .startContainer
+        .parentNode;
     }
 
     return (node && node.nodeName === "A");
   }
-});
+}
 
-var UnLink = Formatter.extend({
-  title: "unlink",
-  iconName: "link",
-  cmd: "unlink",
-  text : "link"
-});
+export class UnLink extends Formatter {
+  constructor() {
+    super();
 
+    this.title = "unlink";
+    this.iconName = "link";
+    this.cmd = "unlink";
+    this.text = "link";
+  }
+}
 
-exports.Bold = new Bold();
-exports.Italic = new Italic();
-exports.Link = new Link();
-exports.Unlink = new UnLink();
+export default {
+  Bold: new Bold(),
+  Italic: new Italic(),
+  Link: new Link(),
+  UnLink: new UnLink()
+}

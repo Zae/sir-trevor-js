@@ -1,24 +1,23 @@
 "use strict";
 
-var $ = require('jquery');
-var Block = require('../block');
+import $ from 'jquery';
+import Block from '../block';
 
-module.exports = Block.extend({
+export default Block.extend({
 
   type: "image",
-  title: function() { return i18n.t('blocks:image:title'); },
-
   droppable: true,
   uploadable: true,
-
   icon_name: 'image',
 
-  loadData: function(data){
+  title: () => i18n.t('blocks:image:title'),
+
+  loadData(data){
     // Create our image tag
     this.$editor.html($('<img>', { src: data.file.url }));
   },
 
-  onBlockRender: function(){
+  onBlockRender(){
     /* Setup the upload button */
     this.$inputs.find('button').bind('click', function(ev){ ev.preventDefault(); });
     this.$inputs.find('input').on('change', (function(ev) {
@@ -26,8 +25,8 @@ module.exports = Block.extend({
     }).bind(this));
   },
 
-  onDrop: function(transferData){
-    var file = transferData.files[0],
+  onDrop(transferData){
+    const file = transferData.files[0],
         urlAPI = (typeof URL !== "undefined") ? URL : (typeof webkitURL !== "undefined") ? webkitURL : null;
 
     // Handle one upload at a time

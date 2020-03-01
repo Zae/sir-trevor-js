@@ -1,11 +1,14 @@
 "use strict";
 
-var BlockDeletion = function() {
+import FunctionBind from './function-bind';
+import Renderable from './renderable';
+
+const BlockDeletion = function() {
   this._ensureElement();
   this._bindFunctions();
 };
 
-Object.assign(BlockDeletion.prototype, require('./function-bind'), require('./renderable'), {
+Object.assign(BlockDeletion.prototype, FunctionBind, Renderable, {
 
   tagName: 'a',
   className: 'st-block-ui-btn st-block-ui-btn--delete st-icon',
@@ -17,4 +20,4 @@ Object.assign(BlockDeletion.prototype, require('./function-bind'), require('./re
 
 });
 
-module.exports = BlockDeletion;
+export default BlockDeletion;

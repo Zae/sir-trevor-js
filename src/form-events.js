@@ -1,15 +1,15 @@
 "use strict";
 
-var config = require('./config');
-var utils = require('./utils');
+import config from './config';
+import utils from './utils';
 
-var EventBus = require('./event-bus');
-var Submittable = require('./extensions/submittable');
+import EventBus from './event-bus';
+import Submittable from './extensions/submittable';
 
-var formBound = false; // Flag to tell us once we've bound our submit event
+let formBound = false; // Flag to tell us once we've bound our submit event
 
-var FormEvents = {
-  bindFormSubmit: function(form) {
+const FormEvents = {
+  bindFormSubmit(form) {
     if (!formBound) {
       // XXX: should we have a formBound and submittable per-editor?
       // telling JSHint to ignore as it'll complain we shouldn't be creating
@@ -21,9 +21,9 @@ var FormEvents = {
     }
   },
 
-  onBeforeSubmit: function(shouldValidate) {
+  onBeforeSubmit(shouldValidate) {
     // Loop through all of our instances and do our form submits on them
-    var errors = 0;
+    let errors = 0;
     config.instances.forEach(function(inst, i) {
       errors += inst.onFormSubmit(shouldValidate);
     });
@@ -32,14 +32,14 @@ var FormEvents = {
     return errors;
   },
 
-  onFormSubmit: function(ev) {
-    var errors = FormEvents.onBeforeSubmit();
+  onFormSubmit(ev) {
+    const errors = FormEvents.onBeforeSubmit();
 
-    if(errors > 0) {
+    if (errors > 0) {
       EventBus.trigger("onError");
       ev.preventDefault();
     }
   },
 };
 
-module.exports = FormEvents;
+export default FormEvents;

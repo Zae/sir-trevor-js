@@ -1,12 +1,11 @@
 "use strict";
 
-var _ = require('../lodash');
-var $ = require('jquery');
-var utils = require('../utils');
+import _, { template, isUndefined, isEmpty } from 'lodash';
+import $ from 'jquery';
+import utils from '../utils';
+import Block from '../block';
 
-var Block = require('../block');
-
-var tweet_template = _.template([
+const tweet_template = template([
   "<blockquote class='twitter-tweet' align='center'>",
   "<p><%= text %></p>",
   "&mdash; <%= user.name %> (@<%= user.screen_name %>)",
@@ -15,53 +14,48 @@ var tweet_template = _.template([
   '<script src="//platform.twitter.com/widgets.js" charset="utf-8"></script>'
 ].join("\n"));
 
-module.exports = Block.extend({
+export default Block.extend({
 
   type: "tweet",
   droppable: true,
   pastable: true,
   fetchable: true,
-
+  icon_name: 'twitter',
   drop_options: {
     re_render_on_reorder: true
   },
 
-  title: function(){ return i18n.t('blocks:tweet:title'); },
+  title: () => i18n.t('blocks:tweet:title'),
+  fetchUrl: (tweetID) => "/tweets/?tweet_id=" + tweetID,
 
-  fetchUrl: function(tweetID) {
-    return "/tweets/?tweet_id=" + tweetID;
-  },
-
-  icon_name: 'twitter',
-
-  loadData: function(data) {
-    if (_.isUndefined(data.status_url)) { data.status_url = ''; }
+  loadData(data) {
+    if (isUndefined(data.status_url)) { data.status_url = ''; }
     this.$inner.find('iframe').remove();
     this.$inner.prepend(tweet_template(data));
   },
 
-  onContentPasted: function(event){
+  onContentPasted(event){
     // Content pasted. Delegate to the drop parse method
-    var input = $(event.target),
-    val = input.val();
+    const input = $(event.target),
+      val = input.val();
 
     // Pass this to the same handler as onDrop
     this.handleTwitterDropPaste(val);
   },
 
-  handleTwitterDropPaste: function(url){
+  handleTwitterDropPaste(url){
     if (!this.validTweetUrl(url)) {
       utils.log("Invalid Tweet URL");
       return;
     }
 
     // Twitter status
-    var tweetID = url.match(/[^\/]+$/);
-    if (!_.isEmpty(tweetID)) {
+    let tweetID = url.match(/[^\/]+$/);
+    if (!isEmpty(tweetID)) {
       this.loading();
       tweetID = tweetID[0];
 
-      var ajaxOptions = {
+      const ajaxOptions = {
         url: this.fetchUrl(tweetID),
         dataType: "json"
       };
@@ -70,15 +64,15 @@ module.exports = Block.extend({
     }
   },
 
-  validTweetUrl: function(url) {
+  validTweetUrl(url) {
     return (utils.isURI(url) &&
             url.indexOf("twitter") !== -1 &&
             url.indexOf("status") !== -1);
   },
 
-  onTweetSuccess: function(data) {
+  onTweetSuccess(data) {
     // Parse the twitter object into something a bit slimmer..
-    var obj = {
+    const obj = {
       user: {
         profile_image_url: data.user.profile_image_url,
         profile_image_url_https: data.user.profile_image_url_https,
@@ -96,13 +90,13 @@ module.exports = Block.extend({
     this.ready();
   },
 
-  onTweetFail: function() {
+  onTweetFail() {
     this.addMessage(i18n.t("blocks:tweet:fetch_error"));
     this.ready();
   },
 
-  onDrop: function(transferData){
-    var url = transferData.getData('text/plain');
+  onDrop(transferData){
+    const url = transferData.getData('text/plain');
     this.handleTwitterDropPaste(url);
   }
 });

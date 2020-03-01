@@ -4,20 +4,18 @@
   Heading Block
 */
 
-var Block = require('../block');
-var stToHTML = require('../to-html');
+import Block from '../block';
+import stToHTML from '../to-html';
 
-module.exports = Block.extend({
+export default Block.extend({
 
   type: 'Heading',
-
-  title: function(){ return i18n.t('blocks:heading:title'); },
-
+  icon_name: 'heading',
   editorHTML: '<div class="st-required st-text-block st-text-block--heading" contenteditable="true"></div>',
 
-  icon_name: 'heading',
+  title: () => i18n.t('blocks:heading:title'),
 
-  loadData: function(data){
+  loadData(data) {
     this.getTextBlock().html(stToHTML(data.text, this.type));
   }
 });

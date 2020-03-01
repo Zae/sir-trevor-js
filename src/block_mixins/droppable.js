@@ -1,26 +1,25 @@
 "use strict";
 
-/* Adds drop functionaltiy to this block */
+/* Adds drop functionality to this block */
 
-var _ = require('../lodash');
-var $ = require('jquery');
-var config = require('../config');
-var utils = require('../utils');
+import $ from 'jquery';
+import config from '../config';
+import utils from '../utils';
+import EventBus from '../event-bus';
 
-var EventBus = require('../event-bus');
+const _ = require('../lodash');
 
-module.exports = {
+export default {
 
   mixinName: "Droppable",
   valid_drop_file_types: ['File', 'Files', 'text/plain', 'text/uri-list'],
 
-  initializeDroppable: function() {
+  initializeDroppable() {
     utils.log("Adding droppable to block " + this.blockID);
 
     this.drop_options = Object.assign({}, config.defaults.Block.drop_options, this.drop_options);
 
-    var drop_html = $(_.template(this.drop_options.html,
-                                 { block: this, _: _ }));
+    const drop_html = $(_.template(this.drop_options.html)({block: this, _: _}));
 
     this.$editor.hide();
     this.$inputs.append(drop_html);
@@ -28,18 +27,18 @@ module.exports = {
 
     // Bind our drop event
     this.$dropzone.dropArea()
-                  .bind('drop', this._handleDrop.bind(this));
+      .bind('drop', this._handleDrop.bind(this));
 
     this.$inner.addClass('st-block__inner--droppable');
   },
 
-  _handleDrop: function(e) {
+  _handleDrop(e) {
     e.preventDefault();
 
     e = e.originalEvent;
 
-    var el = $(e.target),
-        types = e.dataTransfer.types;
+    const el = $(e.target),
+      types = e.dataTransfer.types;
 
     el.removeClass('st-dropzone--dragover');
 
@@ -49,13 +48,13 @@ module.exports = {
     */
 
     if (types &&
-        types.some(function(type) {
-                     return this.valid_drop_file_types.includes(type);
-                   }, this)) {
+      types.some(function (type) {
+        return this.valid_drop_file_types.includes(type);
+      }, this)) {
       this.onDrop(e.dataTransfer);
     }
 
     EventBus.trigger('block:content:dropped', this.blockID);
   }
 
-};
+}

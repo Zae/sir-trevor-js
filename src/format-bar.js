@@ -7,13 +7,18 @@
    Renders with all available options for the editor instance
    */
 
-var _ = require('./lodash');
-var $ = require('jquery');
+import {isUndefined, isFunction} from 'lodash';
+import $ from 'jquery';
 
-var config = require('./config');
-var Formatters = require('./formatters');
+import config from './config';
+import Formatters from './formatters';
 
-var FormatBar = function(options, mediator) {
+import FunctionBind from './function-bind';
+import MediatedEvents from './mediated-events';
+import Events from './events';
+import Renderable from './renderable';
+
+const FormatBar = function (options, mediator) {
   this.options = Object.assign({}, config.defaults.formatBar, options || {});
   this.mediator = mediator;
 
@@ -24,7 +29,7 @@ var FormatBar = function(options, mediator) {
   this.initialize.apply(this, arguments);
 };
 
-Object.assign(FormatBar.prototype, require('./function-bind'), require('./mediated-events'), require('./events'), require('./renderable'), {
+Object.assign(FormatBar.prototype, FunctionBind, MediatedEvents, Events, Renderable, {
 
   className: 'st-format-bar',
 
@@ -38,14 +43,13 @@ Object.assign(FormatBar.prototype, require('./function-bind'), require('./mediat
     'hide': 'hide'
   },
 
-  initialize: function() {
-    var formatName, format, btn;
+  initialize() {
     this.$btns = [];
 
-    for (formatName in Formatters) {
+    for (const formatName in Formatters) {
       if (Formatters.hasOwnProperty(formatName)) {
-        format = Formatters[formatName];
-        btn = $("<button>", {
+        const format = Formatters[formatName];
+        const btn = $("<button>", {
           'class': 'st-format-btn st-format-btn--' + formatName + ' ' + (format.iconName ? 'st-icon' : ''),
           'text': format.text,
           'data-type': formatName,
@@ -61,22 +65,23 @@ Object.assign(FormatBar.prototype, require('./function-bind'), require('./mediat
     this.$el.bind('click', '.st-format-btn', this.onFormatButtonClick);
   },
 
-  hide: function() {
+  hide() {
     this.$el.removeClass('st-format-bar--is-ready');
   },
 
-  show: function() {
+  show() {
     this.$el.addClass('st-format-bar--is-ready');
   },
 
-  remove: function(){ this.$el.remove(); },
+  remove() {
+    this.$el.remove();
+  },
 
-  renderBySelection: function() {
-
-    var selection = window.getSelection(),
-    range = selection.getRangeAt(0),
-    boundary = range.getBoundingClientRect(),
-    coords = {};
+  renderBySelection() {
+    const selection = window.getSelection(),
+      range = selection.getRangeAt(0),
+      boundary = range.getBoundingClientRect(),
+      coords = {};
 
     coords.top = boundary.top + 20 + window.pageYOffset - this.$el.height() + 'px';
     coords.left = ((boundary.left + boundary.right) / 2) - (this.$el.width() / 2) + 'px';
@@ -87,27 +92,27 @@ Object.assign(FormatBar.prototype, require('./function-bind'), require('./mediat
     this.$el.css(coords);
   },
 
-  highlightSelectedButtons: function() {
-    var formatter;
-    this.$btns.forEach(function($btn) {
-      formatter = Formatters[$btn.attr('data-type')];
+  highlightSelectedButtons() {
+    this.$btns.forEach(function ($btn) {
+      const formatter = Formatters[$btn.attr('data-type')];
+
       $btn.toggleClass("st-format-btn--is-active",
-                       formatter.isActive());
+        formatter.isActive());
     }, this);
   },
 
-  onFormatButtonClick: function(ev){
+  onFormatButtonClick(ev) {
     ev.stopPropagation();
 
-    var btn = $(ev.target),
-    format = Formatters[btn.attr('data-type')];
+    const btn = $(ev.target),
+      format = Formatters[btn.attr('data-type')];
 
-    if (_.isUndefined(format)) {
+    if (isUndefined(format)) {
       return false;
     }
 
     // Do we have a click function defined on this formatter?
-    if(!_.isUndefined(format.onClick) && _.isFunction(format.onClick)) {
+    if (!isUndefined(format.onClick) && isFunction(format.onClick)) {
       format.onClick(); // Delegate
     } else {
       // Call default
@@ -120,4 +125,4 @@ Object.assign(FormatBar.prototype, require('./function-bind'), require('./mediat
 
 });
 
-module.exports = FormatBar;
+export default FormatBar;

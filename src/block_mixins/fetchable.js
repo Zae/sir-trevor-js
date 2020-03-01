@@ -1,28 +1,29 @@
 "use strict";
 
-var _ = require('../lodash');
-var $ = require('jquery');
+import _, { uniqueId, isUndefined } from 'lodash';
+import $ from 'jquery';
+import Ajaxable from './ajaxable';
 
-module.exports = {
+export default {
 
   mixinName: "Fetchable",
 
-  initializeFetchable: function(){
-    this.withMixin(require('./ajaxable'));
+  initializeFetchable(){
+    this.withMixin(Ajaxable);
   },
 
-  fetch: function(options, success, failure){
-    var uid = _.uniqueId(this.blockID + "_fetch"),
+  fetch(options, success, failure){
+    const uid = uniqueId(this.blockID + "_fetch"),
         xhr = $.ajax(options);
 
     this.resetMessages();
     this.addQueuedItem(uid, xhr);
 
-    if(!_.isUndefined(success)) {
+    if(!isUndefined(success)) {
       xhr.done(success.bind(this));
     }
 
-    if(!_.isUndefined(failure)) {
+    if(!isUndefined(failure)) {
       xhr.fail(failure.bind(this));
     }
 

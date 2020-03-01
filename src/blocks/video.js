@@ -1,10 +1,10 @@
 "use strict";
 
-var _ = require('../lodash');
-var utils = require('../utils');
-var Block = require('../block');
+import _ from 'lodash';
+import utils from '../utils';
+import Block from '../block';
 
-module.exports = Block.extend({
+export default Block.extend({
 
   // more providers at https://gist.github.com/jeffling/a9629ae28e076785a14f
   providers: {
@@ -19,40 +19,43 @@ module.exports = Block.extend({
   },
 
   type: 'video',
-  title: function() { return i18n.t('blocks:video:title'); },
-
   droppable: true,
   pastable: true,
-
   icon_name: 'video',
 
-  loadData: function(data){
-    if (!this.providers.hasOwnProperty(data.source)) { return; }
+  title: () => i18n.t('blocks:video:title'),
 
-    var source = this.providers[data.source];
+  loadData(data) {
+    if (!this.providers.hasOwnProperty(data.source)) {
+      return;
+    }
 
-    var protocol = window.location.protocol === "file:" ? 
+    const source = this.providers[data.source];
+
+    const protocol = window.location.protocol === "file:" ?
       "http:" : window.location.protocol;
 
-    var aspectRatioClass = source.square ?
+    const aspectRatioClass = source.square ?
       'with-square-media' : 'with-sixteen-by-nine-media';
 
     this.$editor
       .addClass('st-block__editor--' + aspectRatioClass)
-      .html(_.template(source.html, {
+      .html(_.template(source.html)({
         protocol: protocol,
         remote_id: data.remote_id,
         width: this.$editor.width() // for videos like vine
       }));
   },
 
-  onContentPasted: function(event){
+  onContentPasted(event) {
     this.handleDropPaste(event.target.value);
   },
 
-  matchVideoProvider: function(provider, index, url) {
-    var match = provider.regex.exec(url);
-    if(match == null || _.isUndefined(match[1])) { return {}; }
+  matchVideoProvider(provider, index, url) {
+    const match = provider.regex.exec(url);
+    if (match == null || _.isUndefined(match[1])) {
+      return {};
+    }
 
     return {
       source: index,
@@ -60,19 +63,23 @@ module.exports = Block.extend({
     };
   },
 
-  handleDropPaste: function(url){
-    if (!utils.isURI(url)) { return; }
+  handleDropPaste(url) {
+    if (!utils.isURI(url)) {
+      return;
+    }
 
-    for(var key in this.providers) { 
-      if (!this.providers.hasOwnProperty(key)) { continue; }
+    for (const key in this.providers) {
+      if (!this.providers.hasOwnProperty(key)) {
+        continue;
+      }
       this.setAndLoadData(
         this.matchVideoProvider(this.providers[key], key, url)
       );
     }
   },
 
-  onDrop: function(transferData){
-    var url = transferData.getData('text/plain');
+  onDrop(transferData) {
+    const url = transferData.getData('text/plain');
     this.handleDropPaste(url);
   }
 });

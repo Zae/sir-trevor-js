@@ -1,5 +1,8 @@
 "use strict";
 
+import SirTrevor from '../../../../src';
+import $ from 'jquery';
+
 describe("Block:Uploadable Block", function(){
 
   var element, editor, block;

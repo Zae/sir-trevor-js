@@ -1,5 +1,8 @@
 "use strict";
 
+import SirTrevor from '../../../src';
+import $ from 'jquery';
+
 describe("SirTrevor.Submittable", function() {
 
   var submittable;

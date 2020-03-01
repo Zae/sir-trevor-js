@@ -6,14 +6,19 @@
  * Gives an interface for adding new Sir Trevor blocks.
  */
 
-var _ = require('./lodash');
-var $ = require('jquery');
+import _ from 'lodash';
+import $ from 'jquery';
 
-var Blocks = require('./blocks');
-var BlockControl = require('./block-control');
-var EventBus = require('./event-bus');
+import Blocks from './blocks';
+import BlockControl from './block-control';
+import EventBus from './event-bus';
 
-var BlockControls = function(available_types, mediator) {
+import FunctionBind from './function-bind';
+import MediatedEvents from './mediated-events';
+import Renderable from './renderable';
+import Events from './events';
+
+const BlockControls = function(available_types, mediator) {
   this.available_types = available_types || [];
   this.mediator = mediator;
 
@@ -24,7 +29,7 @@ var BlockControls = function(available_types, mediator) {
   this.initialize();
 };
 
-Object.assign(BlockControls.prototype, require('./function-bind'), require('./mediated-events'), require('./renderable'), require('./events'), {
+Object.assign(BlockControls.prototype, FunctionBind, MediatedEvents, Renderable, Events, {
 
   bound: ['handleControlButtonClick'],
   block_controls: null,
@@ -38,10 +43,10 @@ Object.assign(BlockControls.prototype, require('./function-bind'), require('./me
     'hide': 'hide'
   },
 
-  initialize: function() {
-    for(var block_type in this.available_types) {
+  initialize() {
+    for(const block_type in this.available_types) {
       if (Blocks.hasOwnProperty(block_type)) {
-        var block_control = new BlockControl(block_type);
+        const block_control = new BlockControl(block_type);
         if (block_control.can_be_rendered) {
           this.$el.append(block_control.render().$el);
         }
@@ -52,26 +57,26 @@ Object.assign(BlockControls.prototype, require('./function-bind'), require('./me
     this.mediator.on('block-controls:show', this.renderInContainer);
   },
 
-  show: function() {
+  show() {
     this.$el.addClass('st-block-controls--active');
 
     EventBus.trigger('block:controls:shown');
   },
 
-  hide: function() {
+  hide() {
     this.removeCurrentContainer();
     this.$el.removeClass('st-block-controls--active');
 
     EventBus.trigger('block:controls:hidden');
   },
 
-  handleControlButtonClick: function(e) {
+  handleControlButtonClick(e) {
     e.stopPropagation();
 
     this.mediator.trigger('block:create', $(e.currentTarget).attr('data-type'));
   },
 
-  renderInContainer: function(container) {
+  renderInContainer(container) {
     this.removeCurrentContainer();
 
     container.append(this.$el.detach());
@@ -81,7 +86,7 @@ Object.assign(BlockControls.prototype, require('./function-bind'), require('./me
     this.show();
   },
 
-  removeCurrentContainer: function() {
+  removeCurrentContainer() {
     if (!_.isUndefined(this.currentContainer)) {
       this.currentContainer.removeClass("with-st-controls");
       this.currentContainer = undefined;
@@ -89,4 +94,4 @@ Object.assign(BlockControls.prototype, require('./function-bind'), require('./me
   }
 });
 
-module.exports = BlockControls;
+export default BlockControls;

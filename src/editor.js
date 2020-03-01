@@ -8,46 +8,49 @@
  * BlockTypes are global however.
  */
 
-var _ = require('./lodash');
-var $ = require('jquery');
-var config = require('./config');
-var utils = require('./utils');
+import FormEvents from './form-events';
+import config from './config';
+import { isUndefined, isFunction, uniqueId, result, isEmpty } from 'lodash';
+import $ from 'jquery';
+import utils from './utils';
 
-var Events = require('./events');
-var EventBus = require('./event-bus');
-var FormEvents = require('./form-events');
-var BlockControls = require('./block-controls');
-var BlockManager = require('./block-manager');
-var FloatingBlockControls = require('./floating-block-controls');
-var FormatBar = require('./format-bar');
-var EditorStore = require('./extensions/editor-store');
-var ErrorHandler = require('./error-handler');
+import Events from './events';
+import EventBus from './event-bus';
+import BlockControls from './block-controls';
+import BlockManager from './block-manager';
+import FloatingBlockControls from './floating-block-controls';
+import FormatBar from './format-bar';
+import EditorStore from './extensions/editor-store';
+import ErrorHandler from './error-handler';
 
-var Editor = function(options) {
+const Editor = function(options) {
   this.initialize(options);
 };
 
-Object.assign(Editor.prototype, require('./function-bind'), require('./events'), {
+import FunctionBind from './function-bind';
+
+
+Object.assign(Editor.prototype, FunctionBind, Events, {
 
   bound: ['onFormSubmit', 'hideAllTheThings', 'changeBlockPosition',
     'removeBlockDragOver', 'renderBlock', 'resetBlockControls',
-    'blockLimitReached'], 
+    'blockLimitReached'],
 
   events: {
     'block:reorder:dragend': 'removeBlockDragOver',
     'block:content:dropped': 'removeBlockDragOver'
   },
 
-  initialize: function(options) {
+  initialize(options) {
     utils.log("Init SirTrevor.Editor");
 
     this.options = Object.assign({}, config.defaults, options || {});
-    this.ID = _.uniqueId('st-editor-');
+    this.ID = uniqueId('st-editor-');
 
     if (!this._ensureAndSetElements()) { return false; }
 
-    if(!_.isUndefined(this.options.onEditorRender) &&
-       _.isFunction(this.options.onEditorRender)) {
+    if (!isUndefined(this.options.onEditorRender) &&
+       isFunction(this.options.onEditorRender)) {
       this.onEditorRender = this.options.onEditorRender;
     }
 
@@ -69,7 +72,7 @@ Object.assign(Editor.prototype, require('./function-bind'), require('./events'),
    * create a default block.
    * If we have JSON then we need to build all of our blocks from this.
    */
-  build: function() {
+  build() {
     this.$el.hide();
 
     this.errorHandler = new ErrorHandler(this.$outer, this.mediator, this.options.errorsContainer);
@@ -97,13 +100,13 @@ Object.assign(Editor.prototype, require('./function-bind'), require('./events'),
     this.createBlocks();
     this.$wrapper.addClass('st-ready');
 
-    if(!_.isUndefined(this.onEditorRender)) {
+    if (!isUndefined(this.onEditorRender)) {
       this.onEditorRender();
     }
   },
 
-  createBlocks: function() {
-    var store = this.store.retrieve();
+  createBlocks() {
+    const store = this.store.retrieve();
 
     if (store.data.length > 0) {
       store.data.forEach(function(block) {
@@ -114,7 +117,7 @@ Object.assign(Editor.prototype, require('./function-bind'), require('./events'),
     }
   },
 
-  destroy: function() {
+  destroy() {
     // Destroy the rendered sub views
     this.formatBar.destroy();
     this.fl_block_controls.destroy();
@@ -139,37 +142,37 @@ Object.assign(Editor.prototype, require('./function-bind'), require('./events'),
     this.$outer.replaceWith(this.$el.detach());
   },
 
-  reinitialize: function(options) {
+  reinitialize(options) {
     this.destroy();
     this.initialize(options || this.options);
   },
 
-  resetBlockControls: function() {
+  resetBlockControls() {
     this.block_controls.renderInContainer(this.$wrapper);
     this.block_controls.hide();
   },
 
-  blockLimitReached: function(toggle) {
+  blockLimitReached(toggle) {
     this.$wrapper.toggleClass('st--block-limit-reached', toggle);
   },
 
-  _setEvents: function() {
+  _setEvents() {
     Object.keys(this.events).forEach(function(type) {
       EventBus.on(type, this[this.events[type]], this);
     }, this);
   },
 
-  hideAllTheThings: function(e) {
+  hideAllTheThings() {
     this.block_controls.hide();
     this.formatBar.hide();
   },
 
-  store: function(method, options){
+  store(method, options){
     utils.log("The store method has been removed, please call store[methodName]");
     return this.store[method].call(this, options || {});
   },
 
-  renderBlock: function(block) {
+  renderBlock(block) {
     this._renderInPosition(block.render().$el);
     this.hideAllTheThings();
     this.scrollTo(block.$el);
@@ -177,30 +180,30 @@ Object.assign(Editor.prototype, require('./function-bind'), require('./events'),
     block.trigger("onRender");
   },
 
-  scrollTo: function(element) {
+  scrollTo(element) {
     $('html, body').animate({ scrollTop: element.position().top }, 300, "linear");
   },
 
-  removeBlockDragOver: function() {
+  removeBlockDragOver() {
     this.$outer.find('.st-drag-over').removeClass('st-drag-over');
   },
 
-  changeBlockPosition: function($block, selectedPosition) {
+  changeBlockPosition($block, selectedPosition) {
     selectedPosition = selectedPosition - 1;
 
-    var blockPosition = this.getBlockPosition($block),
+    const blockPosition = this.getBlockPosition($block),
     $blockBy = this.$wrapper.find('.st-block').eq(selectedPosition);
 
-    var where = (blockPosition > selectedPosition) ? "Before" : "After";
+    const where = (blockPosition > selectedPosition) ? "Before" : "After";
 
-    if($blockBy && $blockBy.attr('id') !== $block.attr('id')) {
+    if ($blockBy && $blockBy.attr('id') !== $block.attr('id')) {
       this.hideAllTheThings();
       $block["insert" + where]($blockBy);
       this.scrollTo($block);
     }
   },
 
-  _renderInPosition: function(block) {
+  _renderInPosition(block) {
     if (this.block_controls.currentContainer) {
       this.block_controls.currentContainer.after(block);
     } else {
@@ -208,14 +211,14 @@ Object.assign(Editor.prototype, require('./function-bind'), require('./events'),
     }
   },
 
-  validateAndSaveBlock: function(block, shouldValidate) {
+  validateAndSaveBlock(block, shouldValidate) {
     if ((!config.skipValidation || shouldValidate) && !block.valid()) {
-      this.mediator.trigger('errors:add', { text: _.result(block, 'validationFailMsg') });
+      this.mediator.trigger('errors:add', { text: result(block, 'validationFailMsg') });
       utils.log("Block " + block.blockID + " failed validation");
       return;
     }
 
-    var blockData = block.getData();
+    const blockData = block.getData();
     utils.log("Adding data for block " + block.blockID + " to block store:",
               blockData);
     this.store.addData(blockData);
@@ -225,9 +228,9 @@ Object.assign(Editor.prototype, require('./function-bind'), require('./events'),
    * Handle a form submission of this Editor instance.
    * Validate all of our blocks, and serialise all data onto the JSON objects
    */
-  onFormSubmit: function(shouldValidate) {
+  onFormSubmit(shouldValidate) {
     // if undefined or null or anything other than false - treat as true
-    shouldValidate = (shouldValidate === false) ? false : true;
+    shouldValidate = (shouldValidate !== false);
 
     utils.log("Handling form submission for Editor " + this.ID);
 
@@ -243,34 +246,34 @@ Object.assign(Editor.prototype, require('./function-bind'), require('./events'),
     return this.errorHandler.errors.length;
   },
 
-  validateBlocks: function(shouldValidate) {
-    var self = this;
+  validateBlocks(shouldValidate) {
+    const self = this;
     this.$wrapper.find('.st-block').each(function(idx, block) {
-      var _block = self.block_manager.findBlockById($(block).attr('id'));
-      if (!_.isUndefined(_block)) {
+      const _block = self.block_manager.findBlockById($(block).attr('id'));
+      if (!isUndefined(_block)) {
         self.validateAndSaveBlock(_block, shouldValidate);
       }
     });
   },
 
-  findBlockById: function(block_id) {
+  findBlockById(block_id) {
     return this.block_manager.findBlockById(block_id);
   },
 
-  getBlocksByType: function(block_type) {
+  getBlocksByType(block_type) {
     return this.block_manager.getBlocksByType(block_type);
   },
 
-  getBlocksByIDs: function(block_ids) {
+  getBlocksByIDs(block_ids) {
     return this.block_manager.getBlocksByIDs(block_ids);
   },
 
-  getBlockPosition: function($block) {
+  getBlockPosition($block) {
     return this.$wrapper.find('.st-block').index($block);
   },
 
-  _ensureAndSetElements: function() {
-    if(_.isUndefined(this.options.el) || _.isEmpty(this.options.el)) {
+  _ensureAndSetElements() {
+    if (isUndefined(this.options.el) || isEmpty(this.options.el)) {
       utils.log("You must provide an el");
       return false;
     }
@@ -279,8 +282,8 @@ Object.assign(Editor.prototype, require('./function-bind'), require('./events'),
     this.el = this.options.el[0];
     this.$form = this.$el.parents('form');
 
-    var $outer = $("<div>").attr({ 'id': this.ID, 'class': 'st-outer', 'dropzone': 'copy link move' });
-    var $wrapper = $("<div>").attr({ 'class': 'st-blocks' });
+    const $outer = $("<div>").attr({ 'id': this.ID, 'class': 'st-outer', 'dropzone': 'copy link move' });
+    const $wrapper = $("<div>").attr({ 'class': 'st-blocks' });
 
     // Wrap our element in lots of containers *eww*
     this.$el.wrap($outer).wrap($wrapper);
@@ -293,6 +296,6 @@ Object.assign(Editor.prototype, require('./function-bind'), require('./events'),
 
 });
 
-module.exports = Editor;
+export default Editor;
 
 

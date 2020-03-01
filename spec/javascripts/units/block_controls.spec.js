@@ -1,5 +1,7 @@
 "use strict";
 
+import SirTrevor from '../../../src';
+
 describe("BlockControls", function(){
 
   describe("creating a new instance", function(){

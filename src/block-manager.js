@@ -1,13 +1,17 @@
 "use strict";
 
-var _ = require('./lodash');
-var utils = require('./utils');
-var config = require('./config');
+import { isUndefined, isEmpty } from 'lodash';
+import utils from './utils';
+import config from './config';
 
-var EventBus = require('./event-bus');
-var Blocks = require('./blocks');
+import EventBus from './event-bus';
+import Blocks from './blocks';
 
-var BlockManager = function(options, editorInstance, mediator) {
+import FunctionBind from './function-bind';
+import MediatedEvents from './mediated-events';
+import Events from './events';
+
+const BlockManager = function(options, editorInstance, mediator) {
   this.options = options;
   this.instance_scope = editorInstance;
   this.mediator = mediator;
@@ -23,7 +27,7 @@ var BlockManager = function(options, editorInstance, mediator) {
   this.initialize();
 };
 
-Object.assign(BlockManager.prototype, require('./function-bind'), require('./mediated-events'), require('./events'), {
+Object.assign(BlockManager.prototype, FunctionBind, MediatedEvents, Events, {
 
   eventNamespace: 'block',
 
@@ -33,15 +37,15 @@ Object.assign(BlockManager.prototype, require('./function-bind'), require('./med
     'rerender': 'rerenderBlock'
   },
 
-  initialize: function() {},
+  initialize() {},
 
-  createBlock: function(type, data) {
+  createBlock(type, data) {
     type = utils.classify(type);
 
     // Run validations
     if (!this.canCreateBlock(type)) { return; }
 
-    var block = new Blocks[type](data, this.instance_scope, this.mediator);
+    const block = new Blocks[type](data, this.instance_scope, this.mediator);
     this.blocks.push(block);
 
     this._incrementBlockTypeCount(type);
@@ -53,8 +57,8 @@ Object.assign(BlockManager.prototype, require('./function-bind'), require('./med
     utils.log("Block created of type " + type);
   },
 
-  removeBlock: function(blockID) {
-    var block = this.findBlockById(blockID),
+  removeBlock(blockID) {
+    const block = this.findBlockById(blockID),
     type = utils.classify(block.type);
 
     this.mediator.trigger('block-controls:reset');
@@ -69,19 +73,19 @@ Object.assign(BlockManager.prototype, require('./function-bind'), require('./med
     EventBus.trigger("block:remove");
   },
 
-  rerenderBlock: function(blockID) {
-    var block = this.findBlockById(blockID);
-    if (!_.isUndefined(block) && !block.isEmpty() &&
+  rerenderBlock(blockID) {
+    const block = this.findBlockById(blockID);
+    if (!isUndefined(block) && !block.isEmpty() &&
         block.drop_options.re_render_on_reorder) {
       block.beforeLoadingData();
     }
   },
 
-  triggerBlockCountUpdate: function() {
+  triggerBlockCountUpdate() {
     this.mediator.trigger('block:countUpdate', this.blocks.length);
   },
 
-  canCreateBlock: function(type) {
+  canCreateBlock(type) {
     if(this.blockLimitReached()) {
       utils.log("Cannot add any more blocks. Limit reached.");
       return false;
@@ -101,7 +105,7 @@ Object.assign(BlockManager.prototype, require('./function-bind'), require('./med
     return true;
   },
 
-  validateBlockTypesExist: function(shouldValidate) {
+  validateBlockTypesExist(shouldValidate) {
     if (config.skipValidation || !shouldValidate) { return false; }
 
     (this.required || []).forEach(function(type, index) {
@@ -113,7 +117,7 @@ Object.assign(BlockManager.prototype, require('./function-bind'), require('./med
                               { text: i18n.t("errors:type_missing", { type: type }) });
 
       } else {
-        var blocks = this.getBlocksByType(type).filter(function(b) {
+        const blocks = this.getBlocksByType(type).filter(function(b) {
           return !b.isEmpty();
         });
 
@@ -128,73 +132,72 @@ Object.assign(BlockManager.prototype, require('./function-bind'), require('./med
     }, this);
   },
 
-  findBlockById: function(blockID) {
+  findBlockById(blockID) {
     return this.blocks.find(function(b) {
       return b.blockID === blockID;
     });
   },
 
-  getBlocksByType: function(type) {
+  getBlocksByType(type) {
     return this.blocks.filter(function(b) {
       return utils.classify(b.type) === type;
     });
   },
 
-  getBlocksByIDs: function(block_ids) {
+  getBlocksByIDs(block_ids) {
     return this.blocks.filter(function(b) {
       return block_ids.includes(b.blockID);
     });
   },
 
-  blockLimitReached: function() {
+  blockLimitReached() {
     return (this.options.blockLimit !== 0 && this.blocks.length >= this.options.blockLimit);
   },
 
-  isBlockTypeAvailable: function(t) {
-    return !_.isUndefined(this.blockTypes[t]);
+  isBlockTypeAvailable(t) {
+    return !isUndefined(this.blockTypes[t]);
   },
 
-  canAddBlockType: function(type) {
-    var block_type_limit = this._getBlockTypeLimit(type);
+  canAddBlockType(type) {
+    const block_type_limit = this._getBlockTypeLimit(type);
     return !(block_type_limit !== 0 && this._getBlockTypeCount(type) >= block_type_limit);
   },
 
-  _setBlocksTypes: function() {
+  _setBlocksTypes() {
     this.blockTypes = utils.flatten(
-      _.isUndefined(this.options.blockTypes) ?
+      isUndefined(this.options.blockTypes) ?
       Blocks : this.options.blockTypes);
   },
 
-  _setRequired: function() {
+  _setRequired() {
     this.required = false;
 
-    if (Array.isArray(this.options.required) && !_.isEmpty(this.options.required)) {
+    if (Array.isArray(this.options.required) && !isEmpty(this.options.required)) {
       this.required = this.options.required;
     }
   },
 
-  _incrementBlockTypeCount: function(type) {
-    this.blockCounts[type] = (_.isUndefined(this.blockCounts[type])) ? 1 : this.blockCounts[type] + 1;
+  _incrementBlockTypeCount(type) {
+    this.blockCounts[type] = (isUndefined(this.blockCounts[type])) ? 1 : this.blockCounts[type] + 1;
   },
 
-  _decrementBlockTypeCount: function(type) {
-    this.blockCounts[type] = (_.isUndefined(this.blockCounts[type])) ? 1 : this.blockCounts[type] - 1;
+  _decrementBlockTypeCount(type) {
+    this.blockCounts[type] = (isUndefined(this.blockCounts[type])) ? 1 : this.blockCounts[type] - 1;
   },
 
-  _getBlockTypeCount: function(type) {
-    return (_.isUndefined(this.blockCounts[type])) ? 0 : this.blockCounts[type];
+  _getBlockTypeCount(type) {
+    return (isUndefined(this.blockCounts[type])) ? 0 : this.blockCounts[type];
   },
 
-  _blockLimitReached: function() {
+  _blockLimitReached() {
     return (this.options.blockLimit !== 0 && this.blocks.length >= this.options.blockLimit);
   },
 
-  _getBlockTypeLimit: function(t) {
+  _getBlockTypeLimit(t) {
     if (!this.isBlockTypeAvailable(t)) { return 0; }
-    return parseInt((_.isUndefined(this.options.blockTypeLimits[t])) ? 0 : this.options.blockTypeLimits[t], 10);
+    return parseInt((isUndefined(this.options.blockTypeLimits[t])) ? 0 : this.options.blockTypeLimits[t], 10);
   }
 
 });
 
-module.exports = BlockManager;
-
+export default BlockManager;

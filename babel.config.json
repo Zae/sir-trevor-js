@@ -1,0 +1,24 @@
+{
+  "presets": [
+    ["@babel/preset-env", {
+      "useBuiltIns": "usage",
+      "loose": true,
+      "corejs": 3,
+      "debug": false
+    }]
+  ],
+  "plugins": [
+    "babel-plugin-lodash",
+    [
+      "@babel/plugin-transform-runtime",
+      {
+        "absoluteRuntime": false,
+        "corejs": 3,
+        "helpers": true,
+        "regenerator": true,
+        "useESModules": false
+      }
+    ],
+    "@babel/plugin-proposal-export-default-from"
+  ]
+}

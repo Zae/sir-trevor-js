@@ -1,5 +1,8 @@
 "use strict";
 
+import SirTrevor from '../../../../src';
+import $ from 'jquery';
+
 describe("Editor:Submission", function(){
 
   var element, editor;

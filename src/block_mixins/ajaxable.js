@@ -1,37 +1,36 @@
 "use strict";
 
-var utils = require('../utils');
+import utils from '../utils';
 
-module.exports = {
+export default {
 
   mixinName: "Ajaxable",
-
   ajaxable: true,
 
-  initializeAjaxable: function(){
+  initializeAjaxable() {
     this._queued = [];
   },
 
-  addQueuedItem: function(name, deferred) {
+  addQueuedItem(name, deferred) {
     utils.log("Adding queued item for " + this.blockID + " called " + name);
 
-    this._queued.push({ name: name, deferred: deferred });
+    this._queued.push({name: name, deferred: deferred});
   },
 
-  removeQueuedItem: function(name) {
+  removeQueuedItem(name) {
     utils.log("Removing queued item for " + this.blockID + " called " + name);
 
-    this._queued = this._queued.filter(function(queued) {
+    this._queued = this._queued.filter(function (queued) {
       return queued.name !== name;
     });
   },
 
-  hasItemsInQueue: function() {
+  hasItemsInQueue() {
     return this._queued.length > 0;
   },
 
-  resolveAllInQueue: function() {
-    this._queued.forEach(function(item){
+  resolveAllInQueue() {
+    this._queued.forEach(function (item) {
       utils.log("Aborting queued request: " + item.name);
       item.deferred.abort();
     }, this);

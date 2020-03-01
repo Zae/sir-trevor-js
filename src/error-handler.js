@@ -1,9 +1,13 @@
 "use strict";
 
-var _ = require('./lodash');
-var $ = require('jquery');
+import _ from 'lodash';
+import $ from 'jquery';
 
-var ErrorHandler = function($wrapper, mediator, container) {
+import FunctionBind from './function-bind';
+import MediatedEvents from './mediated-events';
+import Renderable from './renderable';
+
+const ErrorHandler = function ($wrapper, mediator, container) {
   this.$wrapper = $wrapper;
   this.mediator = mediator;
   this.$el = container;
@@ -20,7 +24,7 @@ var ErrorHandler = function($wrapper, mediator, container) {
   this.initialize();
 };
 
-Object.assign(ErrorHandler.prototype, require('./function-bind'), require('./mediated-events'), require('./renderable'), {
+Object.assign(ErrorHandler.prototype, FunctionBind, MediatedEvents, Renderable, {
 
   errors: [],
   className: "st-errors",
@@ -32,30 +36,34 @@ Object.assign(ErrorHandler.prototype, require('./function-bind'), require('./med
     'render': 'render'
   },
 
-  initialize: function() {
-    var $list = $("<ul>");
+  initialize() {
+    const $list = $("<ul>");
     this.$el.append("<p>" + i18n.t("errors:title") + "</p>")
-    .append($list);
+      .append($list);
     this.$list = $list;
   },
 
-  render: function() {
-    if (this.errors.length === 0) { return false; }
+  render() {
+    if (this.errors.length === 0) {
+      return false;
+    }
     this.errors.forEach(this.createErrorItem, this);
     this.$el.show();
   },
 
-  createErrorItem: function(error) {
-    var $error = $("<li>", { class: "st-errors__msg", html: error.text });
+  createErrorItem(error) {
+    const $error = $("<li>", {class: "st-errors__msg", html: error.text});
     this.$list.append($error);
   },
 
-  addMessage: function(error) {
+  addMessage(error) {
     this.errors.push(error);
   },
 
-  reset: function() {
-    if (this.errors.length === 0) { return false; }
+  reset() {
+    if (this.errors.length === 0) {
+      return false;
+    }
     this.errors = [];
     this.$list.html('');
     this.$el.hide();
@@ -63,5 +71,4 @@ Object.assign(ErrorHandler.prototype, require('./function-bind'), require('./med
 
 });
 
-module.exports = ErrorHandler;
-
+export default ErrorHandler;
